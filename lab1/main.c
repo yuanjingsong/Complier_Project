@@ -7,7 +7,10 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
-    while (yylex() != 0);
+    yyrestart(yyin);
+    yyparse();
     return 0;
 }
-
+yyerror(char* msg){
+    fprintf(stderr, "error: %s \n", msg);
+}
