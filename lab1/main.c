@@ -7,8 +7,9 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
-    yyrestart(yyin);
-    yyparse();
+ //   yyrestart(yyin);
+//    yyparse();
+    while (yylex() != 0);
     return 0;
 }
 yyerror(char* msg){
