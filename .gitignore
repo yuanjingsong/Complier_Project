@@ -1,3 +1,6 @@
 */*.out
 */*.yy.c
 */scanner
+*/syntax.tab.*
+lab1/a
+lab1/parser
