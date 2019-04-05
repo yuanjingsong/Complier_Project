@@ -1,22 +1,18 @@
+#ifndef __Parsing_NODE__
 #define __Parsing_NODE__
-
 
 enum {Int = 0, Float, Id, Semi, Comma,  Assign, Relop,
     Plus, Minus, Star, Div, And, Or, Dot, Not, Type, 
     Lp, Rp, Lb, Rb, Lc, Rc, Struct, Return, If, Else,
     While, Program, ExtDefList, ExtDef, Specifier, ExtDecList,
-    VarDec, StructSpecifier, OptTag, Tag, FunDec, Varlist, 
-    ParamDec, Compst, Stmtlist, Stmt, Exp, Def, Deflist, 
-    Dec, Declist, Args
+    VarDec, StructSpecifier, OptTag, Tag, FunDec, VarList, 
+    ParamDec, CompSt, StmtList, Stmt, Exp, Def, DefList, 
+    Dec, DecList, Args
 } ;
 
 enum {Terminal, Variable, Dummy} ;
 
 enum {EQ, LT, GT, NEQ, LEQ, GEQ} ;
-
-typedef struct ParsingNodePtr ParsingNode;
-typedef ParsingNode* ParsingNodePtr;
-typedef ParsingNodePtr ParsingRoot;
 
 struct ParsingNode {
     int kind;
@@ -35,10 +31,14 @@ struct ParsingNode {
         int relop_kind;
     };
 };
+typedef struct ParsingNode ParsingNode;
+typedef ParsingNode* ParsingNodePtr;
+typedef ParsingNodePtr ParsingRoot;
 
 #define  true 1
 #define  false 0
 typedef int bool;
+extern ParsingRoot root;
 
 extern bool ParsingSwitch;
 
@@ -66,3 +66,4 @@ extern ParsingNodePtr GenerateDummyNode(int VariableType);
 extern void PreorderPrintTree (ParsingRoot root);
 extern void PostorderPrintTree (ParsingRoot root);
 extern void SyntaxOutput (ParsingNodePtr node);
+#endif

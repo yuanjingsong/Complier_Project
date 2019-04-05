@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include "ParsingNode.h"
 extern FILE* yyin;
+extern int yydebug;
 int main(int argc, char** argv) {
     if (argc > 1) {
         if (!(yyin = fopen(argv[1], "r"))) {
@@ -7,11 +9,9 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
- //   yyrestart(yyin);
-//    yyparse();
-    while (yylex() != 0);
+    yyrestart(yyin);
+//yydebug = 1;
+    yyparse();
+    PreorderPrintTree(root);
     return 0;
-}
-yyerror(char* msg){
-    fprintf(stderr, "error: %s \n", msg);
 }

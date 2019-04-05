@@ -1,4 +1,5 @@
 #include "ParsingNode.h"
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +16,7 @@ static char* typeTable[2] = {"int", "float"};
 
 char* relopTable[6] = {"==", "<", ">", "!=", "<=", ">="};
 
-ParsingNodePtr Root = NULL;
+ParsingNodePtr root = NULL;
 bool ParsingSwitch = 1;
 
 bool CheckLvalue (ParsingNodePtr node) {
@@ -45,8 +46,7 @@ bool IsArithmeticNode (ParsingNodePtr node) {
     if (node -> SymbolIndex == Plus||
         node -> SymbolIndex == Minus ||     
         node -> SymbolIndex == Star  ||
-        node -> SymbolIndex == Div ||
-            )
+        node -> SymbolIndex == Div )
         return true;
     else 
         return false;
@@ -69,22 +69,22 @@ bool IsRelopNode (ParsingNodePtr node ) {
 }
 
 ParsingNodePtr GenerateSimpleTerminalNode(int TerminalType, int lineno) {
-    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sieof(ParsingNode));
+    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sizeof(ParsingNode));
     newNode -> kind = Terminal;
     newNode -> lineno = lineno;
     newNode -> SymbolIndex = TerminalType;
-    newNode -> firstchild = node -> nextsibiling = NULL;
+    newNode -> firstchild = newNode -> nextsibiling = NULL;
     newNode -> childrenNum = 0;
 
     return newNode;
 }
 
 ParsingNodePtr GenerateRelopNode (int lineno, char* text) {
-    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sieof(ParsingNode));
+    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sizeof(ParsingNode));
     newNode -> kind = Terminal;
     newNode -> lineno = lineno;
     newNode -> SymbolIndex = Relop;
-    newNode -> firstchild = node -> nextsibiling = NULL;
+    newNode -> firstchild = newNode -> nextsibiling = NULL;
     newNode -> childrenNum = 0;
     if (strcmp(text, "==") == 0) 
         newNode -> relop_kind = EQ;
@@ -102,14 +102,14 @@ ParsingNodePtr GenerateRelopNode (int lineno, char* text) {
 }
 
 ParsingNodePtr GenerateIdNode(int lineno, char* text) {
-    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sieof(ParsingNode));
+    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sizeof(ParsingNode));
     newNode -> kind = Terminal;
     newNode -> lineno = lineno;
     newNode -> SymbolIndex = Id;
-    newNode -> firstchild = node -> nextsibiling = NULL;
+    newNode -> firstchild = newNode -> nextsibiling = NULL;
     newNode -> childrenNum = 0;
     newNode -> IdName = (char*)malloc(strlen(text));
-    strcpy(node->IdName, text);
+    strcpy(newNode->IdName, text);
     return newNode;
 }
 
@@ -123,11 +123,11 @@ ParsingNodePtr GenerateDummyNode(int VariableType) {
 }
 
 ParsingNodePtr GenerateTypeNode(int TerminalType, int lineno, char * text) {
-    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sieof(ParsingNode));
+    ParsingNodePtr newNode = (ParsingNodePtr)malloc(sizeof(ParsingNode));
     newNode -> kind = Terminal;
     newNode -> lineno = lineno;
     newNode -> SymbolIndex = TerminalType;
-    newNode -> firstchild = node -> nextsibiling = NULL;
+    newNode -> firstchild = newNode -> nextsibiling = NULL;
     newNode -> childrenNum = 0;
     if (TerminalType == Type) {
         if (strcmp(text, "int") == 0) {
@@ -161,7 +161,7 @@ ParsingNodePtr GenerateVariable(int VariableType, int childrenNum, ...) {
         }else {
             previous -> nextsibiling = child;
         }
-        if (child -> kine == Dummy) {
+        if (child -> kind == Dummy) {
             dummy_num ++;
         }else {
             if (!met_first) {
@@ -174,7 +174,7 @@ ParsingNodePtr GenerateVariable(int VariableType, int childrenNum, ...) {
     }
     va_end(ap);
     if (dummy_num == childrenNum) {
-        newNode -> kinde = Dummy;
+        newNode -> kind = Dummy;
     }
     return newNode;
 }
@@ -182,11 +182,12 @@ ParsingNodePtr GenerateVariable(int VariableType, int childrenNum, ...) {
 void PrintSpace(ParsingNodePtr node) {
     if (node -> kind == Dummy)
         return;
-    for (int i = 0; i < node.depth*2; i++)
+    for (int i = 0; i < (node->depth) *2; i++)
         printf(" ");
 }
 
 void PrintNode(ParsingNodePtr node) {
+    printf("this node \n");
     PrintSpace(node);
     if (node -> kind == Variable) {
         printf("%s (%d)\n", symbolsTable[node -> SymbolIndex], node -> lineno);
@@ -194,7 +195,7 @@ void PrintNode(ParsingNodePtr node) {
         if (node -> SymbolIndex == Id) {
             printf("%s: %s\n", symbolsTable[node -> SymbolIndex], node -> IdName);
         }else if (node -> SymbolIndex == Relop) {
-            printf("%s: %s\n", symbolsTable[node -> SymbolIndex], relopTablep[node -> SymbolIndex]);
+            printf("%s: %s\n", symbolsTable[node -> SymbolIndex], relopTable[node -> SymbolIndex]);
         }else if (node -> SymbolIndex == Type) {
             printf("%s: %s\n", symbolsTable[node -> SymbolIndex], typeTable[node -> SymbolIndex]);
         }else if (node -> SymbolIndex == Int) {
@@ -207,10 +208,11 @@ void PrintNode(ParsingNodePtr node) {
 }
 
 void PreorderPrintTree (ParsingRoot root) {
+    printf("%d\n", ParsingSwitch);
     if (!ParsingSwitch) return;
     PrintNode(root);
     ParsingNodePtr child = root -> firstchild;
-    for (int i = 0, len = root.childrenNum; i < len; i++) {
+    for (int i = 0, len = root -> childrenNum; i < len; i++) {
         PreorderPrintTree(child);
         child = child -> nextsibiling;
     }

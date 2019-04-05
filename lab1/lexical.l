@@ -1,8 +1,10 @@
 %option yylineno
 %{
+    #include <stdio.h>
     #include "syntax.tab.h"
+    #include "ParsingNode.h"
     int yycolumn = 1;
-   void IllegalOctHandler(char * msg, int lineo);
+    void IllegalOctHandler(char * msg, int lineo);
 %}
 
 OCT_DIGIT [0-7]
@@ -13,37 +15,39 @@ HEX 0[xX]{HEX_DIGIT}+
 OCT 0{OCT_DIGIT}+
 INT 0|[1-9]{DIGIT}*|0{OCT_DIGIT}+|0[xX]{HEX_DIGIT}+
 FLOAT [+-]?([0-9]+\.[0-9]+)|([0-9]+\.[0-9]*[eE][+-]?{DIGIT}+)
+TYPE {INT}|{FLOAT}
 ID [a-zA-Z_]+[0-9a-zA-Z_]*
 RELOP ">"|"<"|">="|"<="|"!="|"=="
 COMMENTLINE \/\/[^\n]*
 COMENTBLOCK \/\*
 WS [ \t]+
 %%
-{RELOP} {return RELOP;}
-{INT} {printf("int value is %s\n", yytext);return INT;}
-{FLOAT} {/*yylval = atof(yytext); return FLOAT;*/}
-{ID} {return ID;}
-";" {return SEMI;} 
-"\(" {return LP;}
-"\)" {return RP;}
-"," {return COMMA;}
-"\+" {return PLUS;}
-"-" {return MINUS;}
-"\*" {return STAR;}
-"\/" {return DIV;}
-"&&" {return AND;}
-"\|\|" {return OR;}
-"\!" {return NOT;}
-"{" {return LC;}
-"}" {return RC;}
-"\[" {return LB;}
-"\]" {return RB;}
-"=" {return ASSIGNOP;}
-"struct" {return STRUCT;}
-"if" {return IF;}
-"else" {return ELSE;}
-"while" {return WHILE;}
-"return" {return RETURN;}
+{INT} {yylval.node = GenerateTypeNode(INT, yylineno, yytext); return INT;}
+{FLOAT} {yylval.node = GenerateTypeNode(FLOAT, yylineno, yytext); return FLOAT;}
+{TYPE} {yylval.node = GenerateTypeNode(TYPE, yylineno, yytext); return TYPE;}
+";" {yylval.node = GenerateSimpleTerminalNode(Semi, yylineno); return SEMI;} 
+"\(" {yylval.node = GenerateSimpleTerminalNode(Lp, yylineno);  return LP;}
+"\)" {yylval.node = GenerateSimpleTerminalNode(Rp, yylineno); return RP;}
+"," {yylval.node = GenerateSimpleTerminalNode(Comma, yylineno); return COMMA;}
+"\+" {yylval.node = GenerateSimpleTerminalNode(Plus, yylineno); return PLUS;}
+"-" {yylval.node = GenerateSimpleTerminalNode(Minus, yylineno); return MINUS;}
+"\*" {yylval.node = GenerateSimpleTerminalNode(Star, yylineno); return STAR;}
+"\/" {yylval.node = GenerateSimpleTerminalNode(Div, yylineno); return DIV;}
+"&&" {yylval.node = GenerateSimpleTerminalNode(And, yylineno); return AND;}
+"\|\|" {yylval.node = GenerateSimpleTerminalNode(Or, yylineno);return OR;}
+"\!" {yylval.node = GenerateSimpleTerminalNode(Not, yylineno); return NOT;}
+"{" {yylval.node = GenerateSimpleTerminalNode(Lc, yylineno); return LC;}
+"}" {yylval.node = GenerateSimpleTerminalNode(Rc, yylineno); return RC;}
+"\[" {yylval.node = GenerateSimpleTerminalNode(Lb, yylineno); return LB;}
+"\]" {yylval.node = GenerateSimpleTerminalNode(Rb, yylineno); return RB;}
+"=" {yylval.node = GenerateSimpleTerminalNode(Assign, yylineno); return ASSIGNOP;}
+{RELOP} {yylval.node = GenerateRelopNode(yylineno, yytext); return Relop;}
+"struct" {yylval.node = GenerateSimpleTerminalNode(Struct, yylineno); return STRUCT;}
+"if" {yylval.node = GenerateSimpleTerminalNode(If, yylineno); return IF;}
+"else" {yylval.node = GenerateSimpleTerminalNode(Else, yylineno); return ELSE;}
+"while" {yylval.node = GenerateSimpleTerminalNode(While, yylineno); return WHILE;}
+"return" {yylval.node = GenerateSimpleTerminalNode(Return, yylineno); return RETURN;}
+{ID} {yylval.node = GenerateIdNode(yylineno, yytext);  return ID;}
 \n {yycolumn = 1;}
 {COMMENTLINE} {;}
 {COMENTBLOCK} {;}
