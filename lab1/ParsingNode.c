@@ -204,7 +204,7 @@ void PrintNode(ParsingNodePtr node) {
         if (node -> SymbolIndex == Id) {
             printf("%s: %s\n", symbolsTable[node -> SymbolIndex], node -> IdName);
         }else if (node -> SymbolIndex == Relop) {
-            printf("%s: %s\n", symbolsTable[node -> SymbolIndex], relopTable[node -> SymbolIndex]);
+            printf("%s: %s\n", symbolsTable[node -> SymbolIndex], relopTable[node -> relop_kind]);
         }else if (node -> SymbolIndex == Type) {
             printf("%s: %s\n", symbolsTable[node -> SymbolIndex], typeTable[node -> type]);
         }else if (node -> SymbolIndex == Int) {
