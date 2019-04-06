@@ -1,7 +1,8 @@
-struct Product {
+struct Product
+{
     int price;
     int weight;
-} p[10];
+} p[10],
 
 int Calculate(struct Product product)
 {
@@ -10,9 +11,9 @@ int Calculate(struct Product product)
     else
         return product.price / 2 * (product->weight - 1) + product.price;
 }
+
 int main()
 {
-
     int priceA[10], weightA[10];
     int result;
     int i, N = 10;
@@ -22,9 +23,11 @@ int main()
         i = i + 1;
     }
     i = 0;
+
     while (i < N) {
         p[i].price = priceA[i];
-        p[i].weight = weightA[]; result = result + Calculate(p[i]]);
+        p[i].weight = weightA[]; 
+        result = result + Calculate(p[i]]);
     }
     return result;
 }

@@ -83,7 +83,7 @@ VarList: ParamDec COMMA VarList {$$ = GenerateVariable(VarList, 3, $1, $2, $3);}
 ParamDec: Specifier VarDec {$$ = GenerateVariable(ParamDec, 1, $1);}
 ;
 
-CompSt: LC DefList StmtList RC {$$ = GenerateVariable(CompSt, 4, $1, $2, $3, $4);}
+CompSt: LC DefList StmtList RC {$$ = GenerateVariable(CompSt, 4, $1, $2, $3, $4); printf("%s %s %s %s\n", $1, $2, $3, $4);}
     | LC error %prec LOWER_THAN_RC {ErrorTypeBHandler(prev_error_lineno, "Missing }");}
     | LC error RC {ErrorTypeBHandler(prev_error_lineno, "Syntax error before }");}
 ;
@@ -126,7 +126,14 @@ Exp: Exp ASSIGNOP Exp {$$ = GenerateVariable(Exp, 3, $1, $2, $3);}
     | ID {$$ = GenerateVariable(Exp, 1, $1);}
     | INT {$$ = GenerateVariable(Exp, 1, $1);}
     | FLOAT {$$ = GenerateVariable(Exp, 1, $1);}
+    | Exp LB Exp error RB {ErrorTypeBHandler(prev_error_lineno, "Missing \"]\".");}
+    | Exp LB error RB {ErrorTypeBHandler(prev_error_lineno, "Syntax error after \"[\".");}
+    | ID LP error RP { ErrorTypeBHandler(prev_error_lineno, "Syntax error after \"(\".");}
+    | ID LP Args error RP {ErrorTypeBHandler(prev_error_lineno, "Syntax error before \")\".");}
+    | ID LP Args error RB RP {ErrorTypeBHandler(prev_error_lineno, "Syntax error before \")\".");} 
+    | ID LP Args error %prec LOWER_THAN_RP {ErrorTypeBHandler(prev_error_lineno, "Syntax error after \"(\".");}
 ;
+
 Args : Exp COMMA Args {$$ = GenerateVariable(Args, 3, $1, $2, $3);}
      | Exp {$$ = GenerateVariable(Args, 1, $1);}
 %%

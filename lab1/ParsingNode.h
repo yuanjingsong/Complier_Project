@@ -37,6 +37,8 @@ typedef ParsingNodePtr ParsingRoot;
 
 #define  true 1
 #define  false 0
+#define int_type 0
+#define float_type 1
 typedef int bool;
 extern ParsingRoot root;
 

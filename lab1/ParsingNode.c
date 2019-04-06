@@ -131,9 +131,9 @@ ParsingNodePtr GenerateTypeNode(int TerminalType, int lineno, char * text) {
     newNode -> childrenNum = 0;
     if (TerminalType == Type) {
         if (strcmp(text, "int") == 0) {
-                
+            newNode -> type = int_type;
         }else if (strcmp (text, "float") == 0) {
-
+            newNode -> type = float_type;
         }
     }else if (TerminalType == Int) {
         newNode -> int_value = atoi(text);
@@ -157,7 +157,7 @@ ParsingNodePtr GenerateVariable(int VariableType, int childrenNum, ...) {
     for (int i = 0; i < childrenNum; i++) {
         child = va_arg(ap, ParsingNodePtr);
         if (i == 0) {
-            newNode -> nextsibiling = child;
+            newNode -> firstchild = child;
         }else {
             previous -> nextsibiling = child;
         }
@@ -179,6 +179,16 @@ ParsingNodePtr GenerateVariable(int VariableType, int childrenNum, ...) {
     return newNode;
 }
 
+void setDepth(ParsingNodePtr node, int depth ) {
+    node -> depth = depth;
+    ParsingNodePtr child = node -> firstchild;
+    for (int i = 0; i < node -> childrenNum; i++) {
+        setDepth(child, depth + 1);
+        child = child -> nextsibiling;
+    }
+}
+
+
 void PrintSpace(ParsingNodePtr node) {
     if (node -> kind == Dummy)
         return;
@@ -187,7 +197,6 @@ void PrintSpace(ParsingNodePtr node) {
 }
 
 void PrintNode(ParsingNodePtr node) {
-    printf("this node \n");
     PrintSpace(node);
     if (node -> kind == Variable) {
         printf("%s (%d)\n", symbolsTable[node -> SymbolIndex], node -> lineno);
@@ -197,7 +206,7 @@ void PrintNode(ParsingNodePtr node) {
         }else if (node -> SymbolIndex == Relop) {
             printf("%s: %s\n", symbolsTable[node -> SymbolIndex], relopTable[node -> SymbolIndex]);
         }else if (node -> SymbolIndex == Type) {
-            printf("%s: %s\n", symbolsTable[node -> SymbolIndex], typeTable[node -> SymbolIndex]);
+            printf("%s: %s\n", symbolsTable[node -> SymbolIndex], typeTable[node -> type]);
         }else if (node -> SymbolIndex == Int) {
             printf("%s: %d\n", symbolsTable[node -> SymbolIndex], node->int_value);
         }else if (node -> SymbolIndex == Float)  {
@@ -208,7 +217,6 @@ void PrintNode(ParsingNodePtr node) {
 }
 
 void PreorderPrintTree (ParsingRoot root) {
-    printf("%d\n", ParsingSwitch);
     if (!ParsingSwitch) return;
     PrintNode(root);
     ParsingNodePtr child = root -> firstchild;
@@ -218,5 +226,8 @@ void PreorderPrintTree (ParsingRoot root) {
     }
 
 }
-void SyntaxOutput (ParsingNodePtr node) {
+
+void output(ParsingRoot root) {
+    setDepth(root, 0);
+    PreorderPrintTree(root);
 }
