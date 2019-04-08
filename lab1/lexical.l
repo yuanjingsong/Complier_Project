@@ -9,6 +9,7 @@
     void IllegalOctHandler(char * msg, int lineo);
     void MysteriousCharacterHandler(char* msg, int lineo);
     char* convert(char* text, int base);
+    char* judge(char* text);
 %}
 
 OCT_DIGIT [0-7]
@@ -18,7 +19,7 @@ HEX_DIGIT [0-9a-fA-F]
 OCT 0{OCT_DIGIT}+
 HEX 0[xX]{HEX_DIGIT}+
 INT 0|[1-9]{DIGIT}*|0{OCT_DIGIT}+|0[xX]{HEX_DIGIT}+
-FLOAT [+-]?([0-9]+\.[0-9]+)|([0-9]+\.[0-9]*[eE][+-]?{DIGIT}+)
+FLOAT [+-]?([0-9]+\.[0-9]+)|([0-9]*\.[0-9]*[eE][+-]?{DIGIT}+)
 TYPE "int"|"float"
 ID [a-zA-Z_]+[0-9a-zA-Z_]*
 RELOP ">"|"<"|">="|"<="|"!="|"=="
@@ -26,10 +27,10 @@ COMMENTLINE \/\/[^\n]*
 COMENTBLOCK \/\*
 WS [ \t]+
 %%
-{OCT} {char* msg = convert(yytext, 8); printf("%p \n", msg); printf("%s\n", msg); yylval.node = GenerateTypeNode(Int, yylineno, msg);return INT;}
+{OCT} {yylval.node = GenerateTypeNode(Int, yylineno, convert(yytext, 8));return INT;}
 {DEC} {yylval.node = GenerateTypeNode(Int, yylineno, yytext); return INT;}
-{HEX} {char* msg = convert(yytext, 16); printf("%p \n", msg); yylval.node = GenerateTypeNode(Int, yylineno, convert(yytext, 16)); return INT;}
-{FLOAT} {yylval.node = GenerateTypeNode(Float, yylineno, yytext); return FLOAT;}
+{HEX} {yylval.node = GenerateTypeNode(Int, yylineno, convert(yytext, 16)); return INT;}
+{FLOAT} { if (yytext[0] == '.') {char* msg = judge(yytext); printf("%p\n", msg); yylval.node = GenerateTypeNode(Float, yylineno, msg);}else{yylval.node = GenerateTypeNode(FLOAT, yylineno, yytext);} return FLOAT;}
 {TYPE} {yylval.node = GenerateTypeNode(Type, yylineno, yytext);return TYPE;}
 ";" {yylval.node = GenerateSimpleTerminalNode(Semi, yylineno); return SEMI;} 
 "\(" {yylval.node = GenerateSimpleTerminalNode(Lp, yylineno);  return LP;}
@@ -101,4 +102,15 @@ char* convert(char* text, int base){
     ans[len] = '\0';
     char * ansPtr = ans;
     return ansPtr;
+}
+
+char* judge(char* yytext) {
+    int len = strlen(yytext);
+    char * msg = (char*)malloc(len + 1);
+    msg[len + 1] = '\0';
+    for (int i = len ; i >= 1; i--){
+        msg[i] = yytext[i-1];
+    }
+    msg[0] = '0';
+    return msg;
 }
