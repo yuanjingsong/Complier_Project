@@ -1,19 +1,22 @@
 %option yylineno
 %{
     #include <stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
     #include "syntax.tab.h"
     #include "ParsingNode.h"
     int yycolumn = 1;
     void IllegalOctHandler(char * msg, int lineo);
     void MysteriousCharacterHandler(char* msg, int lineo);
+    char* convert(char* text, int base);
 %}
 
 OCT_DIGIT [0-7]
 DIGIT [0-9]
-DEC 0|[1-9][DIGIT]*
+DEC 0|[1-9]{DIGIT}*
 HEX_DIGIT [0-9a-fA-F]
-HEX 0[xX]{HEX_DIGIT}+
 OCT 0{OCT_DIGIT}+
+HEX 0[xX]{HEX_DIGIT}+
 INT 0|[1-9]{DIGIT}*|0{OCT_DIGIT}+|0[xX]{HEX_DIGIT}+
 FLOAT [+-]?([0-9]+\.[0-9]+)|([0-9]+\.[0-9]*[eE][+-]?{DIGIT}+)
 TYPE "int"|"float"
@@ -23,7 +26,9 @@ COMMENTLINE \/\/[^\n]*
 COMENTBLOCK \/\*
 WS [ \t]+
 %%
-{INT} {yylval.node = GenerateTypeNode(Int, yylineno, yytext); return INT;}
+{OCT} {char* msg = convert(yytext, 8); printf("%p \n", msg); printf("%s\n", msg); yylval.node = GenerateTypeNode(Int, yylineno, msg);return INT;}
+{DEC} {yylval.node = GenerateTypeNode(Int, yylineno, yytext); return INT;}
+{HEX} {char* msg = convert(yytext, 16); printf("%p \n", msg); yylval.node = GenerateTypeNode(Int, yylineno, convert(yytext, 16)); return INT;}
 {FLOAT} {yylval.node = GenerateTypeNode(Float, yylineno, yytext); return FLOAT;}
 {TYPE} {yylval.node = GenerateTypeNode(Type, yylineno, yytext);return TYPE;}
 ";" {yylval.node = GenerateSimpleTerminalNode(Semi, yylineno); return SEMI;} 
@@ -60,4 +65,40 @@ WS [ \t]+
 void MysteriousCharacterHandler(char*msg, int lineo) {
     ParsingSwitch = false;
     printf("Error type A at Line %d: Mysterious characters is %s \n", lineo, msg);
+}
+
+char* convert(char* text, int base){ 
+    int res = 0;
+    if (base == 8) {
+        text = text ++;
+    }else {
+        text = text + 2;
+    }
+    while(*text != '\0') {
+        if (*text >= 'A' && *text <= 'F') {
+            res = res * base + (*text - 'A' + 10);
+        }else if (*text >= 'a' && *text <= 'f') {
+            res = res * base + (* text - 'a' + 10);
+        }else 
+            res = res * base  + (*text - '0');
+        text ++;
+    }
+    int result = res;
+    int len = 0;
+    while(res) {
+        res /= 10 ;
+        len ++;
+    }
+    char *ans = (char*)malloc(len+1);
+    printf("ans position is %p\n", ans);
+    int i = 1;
+    res = result;
+    while (res) {
+        ans[len - i]  = res % 10 + '0';
+        res /= 10;
+        i ++ ;
+    }
+    ans[len] = '\0';
+    char * ansPtr = ans;
+    return ansPtr;
 }

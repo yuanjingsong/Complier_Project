@@ -136,7 +136,9 @@ ParsingNodePtr GenerateTypeNode(int TerminalType, int lineno, char * text) {
             newNode -> type = float_type;
         }
     }else if (TerminalType == Int) {
+        printf("position is %p\n", text);
         newNode -> int_value = atoi(text);
+        printf("newNode's value is %d\n", newNode -> int_value);
     }else if (TerminalType == Float) {
         newNode -> float_value = atof(text);
     }
