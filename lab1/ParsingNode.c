@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define DEBUG 1
+
+#ifdef DEBUG
+void PrintNode(ParsingNodePtr node);
+#endif
+
 static char* symbolsTable[48] = 
 		{"INT", "FLOAT", "Id", "SEMI", "COMMA", "ASSIGNOP", "RELOP", 
 		"PLUS", "MINUS", "STAR", "DIV", "AND", "OR", "DOT", "NOT", "TYPE",
@@ -176,6 +182,7 @@ ParsingNodePtr GenerateVariable(int VariableType, int childrenNum, ...) {
     if (dummy_num == childrenNum) {
         newNode -> kind = Dummy;
     }
+
     return newNode;
 }
 

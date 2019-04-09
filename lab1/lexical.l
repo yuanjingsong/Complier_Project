@@ -10,6 +10,8 @@
     void MysteriousCharacterHandler(char* msg, int lineo);
     char* convert(char* text, int base);
     char* judge(char* text);
+    int EmitComment();
+    void CommentUntilEOF(int line);
 %}
 
 OCT_DIGIT [0-7]
@@ -58,7 +60,7 @@ WS [ \t]+
 {ID} {yylval.node = GenerateIdNode(yylineno, yytext);  return ID;}
 \n {yycolumn = 1;}
 {COMMENTLINE} {;}
-{COMENTBLOCK} {;}
+{COMENTBLOCK} {if (EmitComment()) return 0;}
 {WS} {;}
 . {MysteriousCharacterHandler(yytext, yylineno);}
 
@@ -113,4 +115,22 @@ char* judge(char* yytext) {
     }
     msg[0] = '0';
     return msg;
+}
+void CommentUntilEOF(int line) {
+    printf("Comment met EOF at %d \n", line);
+    }
+
+int EmitComment() {
+    char c1, c2;
+    c1 = 0;
+    c2 = input();
+    while (! (c1 == '*' && c2 == '/')) {
+            if (c2 == EOF) {
+                CommentUntilEOF(yylineno);
+                return 1;
+                }
+                c1 = c2;
+                c2 = (char)input();
+    }
+    return 0;
 }

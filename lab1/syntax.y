@@ -80,10 +80,10 @@ VarList: ParamDec COMMA VarList {$$ = GenerateVariable(VarList, 3, $1, $2, $3);}
     | ParamDec {$$ = GenerateVariable(VarList, 1, $1);}
     | ParamDec COMMA error {ErrorTypeBHandler(prev_error_lineno, "Syntax error after ,");}
 ;
-ParamDec: Specifier VarDec {$$ = GenerateVariable(ParamDec, 1, $1);}
+ParamDec: Specifier VarDec {$$ = GenerateVariable(ParamDec, 2, $1, $2);}
 ;
 
-CompSt: LC DefList StmtList RC {$$ = GenerateVariable(CompSt, 4, $1, $2, $3, $4); printf("%s %s %s %s\n", $1, $2, $3, $4);}
+CompSt: LC DefList StmtList RC {$$ = GenerateVariable(CompSt, 4, $1, $2, $3, $4);}
     | LC error %prec LOWER_THAN_RC {ErrorTypeBHandler(prev_error_lineno, "Missing }");}
     | LC error RC {ErrorTypeBHandler(prev_error_lineno, "Syntax error before }");}
 ;
